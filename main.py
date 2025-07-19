@@ -11,20 +11,7 @@ cache = {
     "timestamp": 0
 }
 
-def is_borsa_open():
-    # UTC zamanını alıp Türkiye saatine çevir
-    now_utc = datetime.utcnow()
-    now_tr = now_utc + timedelta(hours=3)  # Türkiye UTC+3
 
-    # Hafta sonu kontrolü
-    if now_tr.weekday() >= 5:  # 5=Cumartesi, 6=Pazar
-        return False
-
-    # Saat kontrolü (10:00-19:00 arası açık)
-    if now_tr.hour < 10 or now_tr.hour >= 19:
-        return False
-
-    return True
 
 @app.route("/")
 def home():
