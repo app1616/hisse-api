@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 import requests
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -11,12 +11,14 @@ cache = {
     "timestamp": 0
 }
 
-# Borsa açık mı kontrolü
+# Türkiye saatine göre borsa açık mı kontrolü
 def is_borsa_open():
-    now = datetime.now()
-    if now.weekday() >= 5:  # Cumartesi, Pazar
+    now_utc = datetime.utcnow()
+    now_tr = now_utc + timedelta(hours=3)  # Türkiye saati (UTC+3)
+
+    if now_tr.weekday() >= 5:  # Cumartesi, Pazar
         return False
-    if now.hour < 10 or now.hour >= 22:
+    if now_tr.hour < 10 or now_tr.hour >= 18:
         return False
     return True
 
@@ -28,26 +30,23 @@ def home():
 def get_hisse_data():
     now = time.time()
 
-    # Borsa kapalıysa sadece cache göster
     if not is_borsa_open():
         return jsonify({
             "status": "success (cache only - market closed)",
             "data": cache["data"]
         })
 
-    # Eğer 10 saniyeden az geçtiyse tekrar veri çekme
     if now - cache["timestamp"] < 60 and cache["data"] is not None:
         return jsonify({
             "status": "success (cache)",
             "data": cache["data"]
         })
 
-    # Yeni veri çek
     try:
         response = requests.get(
             "https://api.collectapi.com/economy/hisseSenedi",
             headers={
-                "authorization": "apikey 0cQkwDtbKDzPtLo5Tn5u9P:7epmAa4z3GfPFnDpsIvN4G",  # ← BURAYI DOLDUR
+                "authorization": "apikey 0cQkwDtbKDzPtLo5Tn5u9P:7epmAa4z3GfPFnDpsIvN4G",
                 "content-type": "application/json"
             }
         )
