@@ -16,7 +16,7 @@ def is_borsa_open():
     now = datetime.now()
     if now.weekday() >= 5:  # Cumartesi, Pazar
         return False
-    if now.hour < 10 or now.hour >= 18:
+    if now.hour < 10 or now.hour >= 22:
         return False
     return True
 
