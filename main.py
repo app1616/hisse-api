@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 import requests
 import time
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -10,6 +11,21 @@ cache = {
     "timestamp": 0
 }
 
+def is_borsa_open():
+    # UTC zamanını alıp Türkiye saatine çevir
+    now_utc = datetime.utcnow()
+    now_tr = now_utc + timedelta(hours=3)  # Türkiye UTC+3
+
+    # Hafta sonu kontrolü
+    if now_tr.weekday() >= 5:  # 5=Cumartesi, 6=Pazar
+        return False
+
+    # Saat kontrolü (10:00-19:00 arası açık)
+    if now_tr.hour < 10 or now_tr.hour >= 19:
+        return False
+
+    return True
+
 @app.route("/")
 def home():
     return "Hisse verisi API çalışıyor."
@@ -18,7 +34,14 @@ def home():
 def get_hisse_data():
     now = time.time()
 
-    # 60 saniyede bir veri çek (daha sık değil)
+    # Eğer borsa kapalıysa cache'i döndür
+    if not is_borsa_open():
+        return jsonify({
+            "status": "success (cache only - market closed)",
+            "data": cache["data"]
+        })
+
+    # 60 saniyeden az süre geçtiyse cache kullan
     if now - cache["timestamp"] < 60 and cache["data"] is not None:
         return jsonify({
             "status": "success (cache)",
@@ -42,7 +65,7 @@ def get_hisse_data():
             "data": data
         })
     except Exception as e:
-        # Eğer veri çekilemezse, cache varsa onu döner
+        # Veri çekilemezse cache varsa onu döndür
         return jsonify({
             "status": "warning (cache - fetch failed)",
             "message": str(e),
