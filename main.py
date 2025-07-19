@@ -1,7 +1,6 @@
 from flask import Flask, jsonify
 import requests
 import time
-from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -11,11 +10,6 @@ cache = {
     "timestamp": 0
 }
 
-# Türkiye saatine göre borsa açık mı kontrolü
-def is_borsa_open():
-    return True
-
-
 @app.route("/")
 def home():
     return "Hisse verisi API çalışıyor."
@@ -24,18 +18,14 @@ def home():
 def get_hisse_data():
     now = time.time()
 
-    if not is_borsa_open():
-        return jsonify({
-            "status": "success (cache only - market closed)",
-            "data": cache["data"]
-        })
-
+    # 60 saniyede bir veri çek (daha sık değil)
     if now - cache["timestamp"] < 60 and cache["data"] is not None:
         return jsonify({
             "status": "success (cache)",
             "data": cache["data"]
         })
 
+    # Yeni veri çekmeye çalış
     try:
         response = requests.get(
             "https://api.collectapi.com/economy/hisseSenedi",
@@ -52,8 +42,9 @@ def get_hisse_data():
             "data": data
         })
     except Exception as e:
+        # Eğer veri çekilemezse, cache varsa onu döner
         return jsonify({
-            "status": "error",
+            "status": "warning (cache - fetch failed)",
             "message": str(e),
             "data": cache["data"]
         })
