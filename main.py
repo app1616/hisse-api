@@ -12,6 +12,20 @@ cache = {
 }
 
 
+from datetime import datetime, timedelta
+
+def is_borsa_open():
+    now_utc = datetime.utcnow()
+    now_tr = now_utc + timedelta(hours=3)  # Türkiye UTC+3
+
+    if now_tr.weekday() >= 5:  # Cumartesi veya Pazar
+        return False
+
+    if now_tr.hour < 10 or now_tr.hour >= 19:
+        return False
+
+    return True
+
 
 @app.route("/")
 def home():
