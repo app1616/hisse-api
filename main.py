@@ -1,52 +1,69 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 import requests
 import time
 
 app = Flask(__name__)
 
-# Cache yapısı
-cache = {
-    "data": None,
-    "timestamp": 0
+# Çoklu veri tipi için cache sistemi
+cache = {}
+
+# API sabit başlıklar
+API_KEY = "apikey 0cQkwDtbKDzPtLo5Tn5u9P:7epmAa4z3GfPFnDpsIvN4G"
+HEADERS = {
+    "authorization": API_KEY,
+    "content-type": "application/json"
+}
+
+# Türlere göre endpointler (şimdilik boş, sen vereceksin)
+ENDPOINTLER = {
+    "hisse": "https://api.collectapi.com/economy/hisseSenedi",
+    "doviz": "https://api.collectapi.com/economy/allCurrency",
+    "altin": "https://api.collectapi.com/economy/goldPrice",
+    "kripto": "https://api.collectapi.com/economy/cripto",
+    "emtia": "https://api.collectapi.com/economy/emtia"
 }
 
 @app.route("/")
 def home():
-    return "Hisse verisi API çalışıyor."
+    return "Finans verisi API çalışıyor."
 
-@app.route("/hisseler")
-def get_hisse_data():
+@app.route("/veri")
+def get_veri():
+    tur = request.args.get("tur")
+
+    if not tur or tur not in ENDPOINTLER:
+        return jsonify({
+            "status": "error",
+            "message": "Geçersiz veya eksik 'tur' parametresi. Örnek: /veri?tur=hisse"
+        }), 400
+
     now = time.time()
+    cache_key = f"{tur}_cache"
 
-    # 60 saniyeden az süre geçtiyse cache kullan
-    if now - cache["timestamp"] < 60 and cache["data"] is not None:
+    # Cache kontrolü
+    if cache_key in cache and now - cache[cache_key]["timestamp"] < 60:
         return jsonify({
             "status": "success (cache)",
-            "data": cache["data"]
+            "data": cache[cache_key]["data"]
         })
 
-    # Yeni veri çekmeye çalış
+    # Yeni veri çekme
     try:
-        response = requests.get(
-            "https://api.collectapi.com/economy/hisseSenedi",
-            headers={
-                "authorization": "apikey 0cQkwDtbKDzPtLo5Tn5u9P:7epmAa4z3GfPFnDpsIvN4G",
-                "content-type": "application/json"
-            }
-        )
+        response = requests.get(ENDPOINTLER[tur], headers=HEADERS)
         data = response.json()
-        cache["data"] = data
-        cache["timestamp"] = now
+        cache[cache_key] = {
+            "data": data,
+            "timestamp": now
+        }
         return jsonify({
             "status": "success (fresh)",
             "data": data
         })
     except Exception as e:
-        # Veri çekilemezse cache varsa onu döndür
         return jsonify({
             "status": "warning (cache - fetch failed)",
             "message": str(e),
-            "data": cache["data"]
+            "data": cache.get(cache_key, {}).get("data")
         })
 
 if __name__ == "__main__":
