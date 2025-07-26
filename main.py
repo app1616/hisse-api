@@ -41,7 +41,7 @@ def get_veri():
     cache_key = f"{tur}_cache"
 
     # Cache kontrolü
-    if cache_key in cache and now - cache[cache_key]["timestamp"] < 60:
+    if cache_key in cache and now - cache[cache_key]["timestamp"] < 150:
         return jsonify({
             "status": "success (cache)",
             "data": cache[cache_key]["data"]
