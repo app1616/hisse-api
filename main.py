@@ -19,7 +19,7 @@ ENDPOINTLER = {
     "hisse": "https://api.collectapi.com/economy/hisseSenedi",
     "doviz": "https://finance.truncgil.com/api/currency-rates",
     "altin": "https://finance.truncgil.com/api/gold-rates",
-    "kripto": "https://api.collectapi.com/economy/cripto",
+    "kripto": "https://finance.truncgil.com/api/crypto-currency-rates",
     "emtia": "https://api.collectapi.com/economy/emtia"
 }
 
