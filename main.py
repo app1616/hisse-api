@@ -17,7 +17,7 @@ HEADERS = {
 # Türlere göre endpointler (şimdilik boş, sen vereceksin)
 ENDPOINTLER = {
     "hisse": "https://api.collectapi.com/economy/hisseSenedi",
-    "doviz": "https://api.collectapi.com/economy/allCurrency",
+    "doviz": "https://finance.truncgil.com/api/currency-rates",
     "altin": "https://finance.truncgil.com/api/gold-rates",
     "kripto": "https://api.collectapi.com/economy/cripto",
     "emtia": "https://api.collectapi.com/economy/emtia"
