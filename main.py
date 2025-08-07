@@ -8,7 +8,7 @@ app = Flask(__name__)
 cache = {}
 
 # API sabit başlıklar
-API_KEY = "apikey 0P0ogqlBxo2usYWcj5WNID:6ntAJIO9CNNqda"
+API_KEY = "apikey 0P0ogqIBxo2usYWcj5WNID:6ntAJIO9CNNqda"
 HEADERS = {
     "authorization": API_KEY,
     "content-type": "application/json"
