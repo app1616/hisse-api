@@ -18,7 +18,7 @@ HEADERS = {
 ENDPOINTLER = {
     "hisse": "https://api.collectapi.com/economy/hisseSenedi",
     "doviz": "https://api.collectapi.com/economy/allCurrency",
-    "altin": "https://api.collectapi.com/economy/goldPrice",
+    "altin": "https://finance.truncgil.com/api/gold-rates",
     "kripto": "https://api.collectapi.com/economy/cripto",
     "emtia": "https://api.collectapi.com/economy/emtia"
 }
